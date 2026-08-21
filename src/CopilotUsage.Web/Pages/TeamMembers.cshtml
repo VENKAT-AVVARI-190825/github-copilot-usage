@@ -1,0 +1,83 @@
+@page "/team-members"
+@model TeamMembersModel
+@{
+    ViewData["Title"] = "Team members";
+}
+
+<h1 class="h3 mb-4">Team members — last 30 days</h1>
+
+@if (Model.ErrorMessage is not null)
+{
+    <div class="alert alert-warning" role="alert">
+        <strong>Couldn't load usage data.</strong> @Model.ErrorMessage
+    </div>
+}
+else
+{
+    <div class="chart-card mb-4">
+        <h2 class="chart-card__title">Requests used per member</h2>
+        <canvas id="membersChart" height="220" role="img" aria-label="Bar chart comparing premium requests used by each team member"></canvas>
+    </div>
+    <script id="members-chart-data" type="application/json">@Html.Raw(Model.MembersChartJson)</script>
+
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th scope="col">Member</th>
+                    <th scope="col" class="text-end">Requests used</th>
+                    <th scope="col">Capacity remaining</th>
+                    <th scope="col" class="text-end">Net spend</th>
+                    <th scope="col" class="text-end">Person-hours saved</th>
+                    <th scope="col">Last active</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var member in Model.Members)
+                {
+                    var status = TeamMembersModel.CapacityStatus(member.CapacityRemainingPct);
+                    var icon = TeamMembersModel.CapacityIcon(member.CapacityRemainingPct);
+                    <tr>
+                        <td>@member.DisplayName</td>
+                        <td class="text-end tabular-nums">@member.RequestsUsed.ToString("N1")</td>
+                        <td>
+                            @if (member.CapacityRemainingPct is { } pct)
+                            {
+                                <div class="meter meter--@status">
+                                    <span class="meter__track">
+                                        <span class="meter__fill" style="width: @(pct.ToString("N0"))%"></span>
+                                    </span>
+                                    <span class="meter__label">
+                                        <span class="meter__icon" aria-hidden="true">@icon</span>@pct.ToString("N0")% remaining
+                                    </span>
+                                </div>
+                            }
+                            else
+                            {
+                                <span class="text-muted">No budget set</span>
+                            }
+                        </td>
+                        <td class="text-end tabular-nums">@member.NetSpend.ToString("C2")</td>
+                        <td class="text-end tabular-nums">@member.PersonHoursSaved.ToString("N1")</td>
+                        <td>
+                            @member.LastActivityAt.ToString("MMM d, yyyy")
+                            <div class="text-muted small">@member.LastActivityEditor</div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@section Scripts {
+    <script src="~/lib/chart.js/chart.umd.min.js"></script>
+    <script src="~/js/charts.js" asp-append-version="true"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (document.getElementById('membersChart')) {
+                CopilotCharts.renderMemberBar('membersChart', 'members-chart-data');
+            }
+        });
+    </script>
+}

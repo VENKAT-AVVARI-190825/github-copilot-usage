@@ -1,0 +1,144 @@
+/* Dataviz palette — see dataviz skill references/palette.md. Swap values here to re-theme. */
+:root {
+    color-scheme: light;
+    --surface-1: #fcfcfb;
+    --page-plane: #f9f9f7;
+    --text-primary: #0b0b0b;
+    --text-secondary: #52514e;
+    --text-muted: #898781;
+    --gridline: #e1e0d9;
+    --baseline: #c3c2b7;
+    --border-hairline: rgba(11, 11, 11, 0.10);
+
+    --series-1: #2a78d6; /* blue — primary trend / magnitude hue */
+    --series-2: #eb6834; /* orange — second sequential context (spend) */
+
+    --status-good: #0ca30c;
+    --status-warning: #fab219;
+    --status-critical: #d03b3b;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        color-scheme: dark;
+        --surface-1: #1a1a19;
+        --page-plane: #0d0d0d;
+        --text-primary: #ffffff;
+        --text-secondary: #c3c2b7;
+        --text-muted: #898781;
+        --gridline: #2c2c2a;
+        --baseline: #383835;
+        --border-hairline: rgba(255, 255, 255, 0.10);
+
+        --series-1: #3987e5;
+        --series-2: #d95926;
+
+        --status-good: #0ca30c;
+        --status-warning: #fab219;
+        --status-critical: #d03b3b;
+    }
+}
+
+body {
+    background: var(--page-plane);
+    color: var(--text-primary);
+}
+
+.tabular-nums {
+    font-variant-numeric: tabular-nums;
+}
+
+/* Stat tile */
+.stat-tile {
+    background: var(--surface-1);
+    border: 1px solid var(--border-hairline);
+    border-radius: 8px;
+    padding: 1rem 1.25rem;
+}
+
+.stat-tile__label {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.stat-tile__value {
+    color: var(--text-primary);
+    font-size: 1.75rem;
+    font-weight: 600;
+    font-variant-numeric: normal; /* proportional figures for large standalone values */
+}
+
+/* Chart card */
+.chart-card {
+    background: var(--surface-1);
+    border: 1px solid var(--border-hairline);
+    border-radius: 8px;
+    padding: 1rem 1.25rem;
+}
+
+.chart-card__title {
+    color: var(--text-primary);
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+}
+
+/* Meter — capacity remaining. Fill carries severity; track is a lighter
+   step of the same status color so state reads across the whole bar. */
+.meter {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 200px;
+}
+
+.meter__track {
+    flex: 1 1 auto;
+    height: 8px;
+    border-radius: 4px;
+    background: var(--gridline);
+    overflow: hidden;
+    display: inline-block;
+}
+
+.meter__fill {
+    display: block;
+    height: 100%;
+    border-radius: 4px;
+}
+
+.meter--good .meter__fill {
+    background: var(--status-good);
+}
+
+.meter--warning .meter__fill {
+    background: var(--status-warning);
+}
+
+.meter--critical .meter__fill {
+    background: var(--status-critical);
+}
+
+.meter__label {
+    color: var(--text-secondary);
+    font-size: 0.8125rem;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
+
+.meter__icon {
+    display: inline-block;
+    margin-right: 0.25rem;
+}
+
+.meter--good .meter__icon {
+    color: var(--status-good);
+}
+
+.meter--warning .meter__icon {
+    color: var(--status-warning);
+}
+
+.meter--critical .meter__icon {
+    color: var(--status-critical);
+}

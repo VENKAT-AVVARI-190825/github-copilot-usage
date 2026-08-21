@@ -1,0 +1,74 @@
+@page "/"
+@model DashboardModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<h1 class="h3 mb-4">Copilot usage — last 30 days</h1>
+
+@if (Model.ErrorMessage is not null)
+{
+    <div class="alert alert-warning" role="alert">
+        <strong>Couldn't load usage data.</strong> @Model.ErrorMessage
+        <div class="mt-1">
+            <a asp-page="/Settings">Check the data source settings</a> — mock data should always work; live GitHub
+            data requires org billing access and a configured token.
+        </div>
+    </div>
+}
+else if (Model.Summary is { } summary)
+{
+    <div class="row g-3 mb-4">
+        <div class="col-sm-4">
+            <div class="stat-tile">
+                <div class="stat-tile__label">Total requests</div>
+                <div class="stat-tile__value">@summary.TotalRequests.ToString("N0")</div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="stat-tile">
+                <div class="stat-tile__label">Net spend</div>
+                <div class="stat-tile__value">@summary.TotalNetSpend.ToString("C2")</div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="stat-tile">
+                <div class="stat-tile__label">Avg. capacity remaining</div>
+                <div class="stat-tile__value">
+                    @(summary.AvgCapacityRemainingPct is { } pct ? $"{pct:N0}%" : "—")
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-lg-6">
+            <div class="chart-card">
+                <h2 class="chart-card__title">Premium requests per day</h2>
+                <canvas id="requestsChart" height="220" role="img" aria-label="Line chart of daily premium requests over the last 30 days"></canvas>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="chart-card">
+                <h2 class="chart-card__title">Net spend per day</h2>
+                <canvas id="spendChart" height="220" role="img" aria-label="Line chart of daily net spend over the last 30 days"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script id="requests-chart-data" type="application/json">@Html.Raw(Model.RequestsChartJson)</script>
+    <script id="spend-chart-data" type="application/json">@Html.Raw(Model.SpendChartJson)</script>
+}
+
+@section Scripts {
+    <script src="~/lib/chart.js/chart.umd.min.js"></script>
+    <script src="~/js/charts.js" asp-append-version="true"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (document.getElementById('requestsChart')) {
+                CopilotCharts.renderTrendLine('requestsChart', 'requests-chart-data', 'series-1', 'Requests');
+                CopilotCharts.renderTrendLine('spendChart', 'spend-chart-data', 'series-2', 'Net spend', { currency: true });
+            }
+        });
+    </script>
+}

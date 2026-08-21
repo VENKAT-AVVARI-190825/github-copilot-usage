@@ -1,0 +1,16 @@
+## .NET
+bin/
+obj/
+*.user
+*.suo
+.vs/
+
+## Test results
+[Tt]est[Rr]esult*/
+*.trx
+
+## Runtime-generated local state
+**/App_Data/
+
+## OS
+.DS_Store

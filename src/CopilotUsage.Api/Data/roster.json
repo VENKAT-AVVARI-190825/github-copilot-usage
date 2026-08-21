@@ -1,0 +1,10 @@
+[
+  { "login": "asharma", "displayName": "Aisha Sharma", "seatCreatedAt": "2025-02-03", "lastActivityEditor": "vscode/1.94.0", "avgDailyRequests": 14.5 },
+  { "login": "bkowalski", "displayName": "Bartosz Kowalski", "seatCreatedAt": "2025-01-20", "lastActivityEditor": "JetBrains-IU/2025.2", "avgDailyRequests": 9.0 },
+  { "login": "cmoreno", "displayName": "Carla Moreno", "seatCreatedAt": "2025-03-11", "lastActivityEditor": "vscode/1.94.0", "avgDailyRequests": 21.0 },
+  { "login": "dpatel", "displayName": "Dev Patel", "seatCreatedAt": "2025-01-20", "lastActivityEditor": "vscode/1.93.1", "avgDailyRequests": 3.5 },
+  { "login": "ejohansson", "displayName": "Erik Johansson", "seatCreatedAt": "2025-04-02", "lastActivityEditor": "visualstudio/17.11", "avgDailyRequests": 17.5 },
+  { "login": "fokafor", "displayName": "Femi Okafor", "seatCreatedAt": "2025-02-17", "lastActivityEditor": "vscode/1.94.0", "avgDailyRequests": 0.6 },
+  { "login": "gzhang", "displayName": "Grace Zhang", "seatCreatedAt": "2025-01-20", "lastActivityEditor": "JetBrains-IU/2025.2", "avgDailyRequests": 26.0 },
+  { "login": "hmuller", "displayName": "Hannah Muller", "seatCreatedAt": "2025-05-08", "lastActivityEditor": "vscode/1.94.0", "avgDailyRequests": 11.0 }
+]
