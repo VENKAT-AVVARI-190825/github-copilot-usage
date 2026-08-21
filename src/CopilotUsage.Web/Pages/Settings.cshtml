@@ -26,15 +26,19 @@
             <option value="GitHubLive">GitHub live (requires org billing access)</option>
         </select>
         <div class="form-text">
-            Live data also requires a <code>GITHUB__TOKEN</code> environment variable set on the API process
-            (a PAT with org billing read access) — it is never entered here.
+            Live data also requires a GitHub token configured on the API process (via <code>dotnet user-secrets</code>
+            or the <code>GITHUB__TOKEN</code> environment variable) — it is never entered here.
         </div>
     </div>
 
     <div class="mb-3">
-        <label asp-for="GitHubOrg" class="form-label">GitHub organization</label>
+        <label asp-for="GitHubOrg" class="form-label">GitHub organization (optional)</label>
         <input asp-for="GitHubOrg" class="form-control" placeholder="e.g. contoso" />
         <span asp-validation-for="GitHubOrg" class="text-danger"></span>
+        <div class="form-text">
+            Leave blank to use your own personal GitHub account's Copilot usage instead of an org's — useful if
+            you're not an org owner/billing manager anywhere. Only applies when data source is GitHub live.
+        </div>
     </div>
 
     <div class="mb-3">
@@ -42,15 +46,6 @@
         <input asp-for="MonthlyBudgetPerSeat" type="number" step="1" class="form-control" />
         <span asp-validation-for="MonthlyBudgetPerSeat" class="text-danger"></span>
         <div class="form-text">Used to compute each member's remaining capacity for the month.</div>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="MinutesSavedPerRequest" class="form-label">Minutes saved per accepted request</label>
-        <input asp-for="MinutesSavedPerRequest" type="number" step="0.5" class="form-control" />
-        <span asp-validation-for="MinutesSavedPerRequest" class="text-danger"></span>
-        <div class="form-text">
-            An estimate, not a GitHub metric — tune it to match your team's own sense of time saved.
-        </div>
     </div>
 
     <button type="submit" class="btn btn-primary">Save</button>

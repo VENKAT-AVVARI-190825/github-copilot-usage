@@ -12,16 +12,11 @@ public sealed class SettingsModel(ApiClient api) : PageModel
     public UsageDataSourceDto DataSource { get; set; }
 
     [BindProperty]
-    [Required(ErrorMessage = "Enter the GitHub organization login this dashboard tracks.")]
     public string? GitHubOrg { get; set; }
 
     [BindProperty]
     [Range(0, 100000, ErrorMessage = "Monthly budget must be zero or greater.")]
     public decimal MonthlyBudgetPerSeat { get; set; }
-
-    [BindProperty]
-    [Range(0, 480, ErrorMessage = "Minutes saved per request must be between 0 and 480.")]
-    public double MinutesSavedPerRequest { get; set; }
 
     public string? ErrorMessage { get; private set; }
 
@@ -36,7 +31,6 @@ public sealed class SettingsModel(ApiClient api) : PageModel
             DataSource = settings.DataSource;
             GitHubOrg = settings.GitHubOrg;
             MonthlyBudgetPerSeat = settings.MonthlyBudgetPerSeat;
-            MinutesSavedPerRequest = settings.MinutesSavedPerRequest;
         }
         catch (ApiException ex)
         {
@@ -57,8 +51,7 @@ public sealed class SettingsModel(ApiClient api) : PageModel
             {
                 DataSource = DataSource,
                 GitHubOrg = GitHubOrg,
-                MonthlyBudgetPerSeat = MonthlyBudgetPerSeat,
-                MinutesSavedPerRequest = MinutesSavedPerRequest
+                MonthlyBudgetPerSeat = MonthlyBudgetPerSeat
             }, ct);
         }
         catch (ApiException ex)

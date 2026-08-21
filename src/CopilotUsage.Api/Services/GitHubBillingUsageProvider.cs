@@ -27,6 +27,7 @@ public sealed class GitHubBillingUsageProvider : IUsageDataProvider
 {
     private readonly HttpClient _http;
     private readonly IOptionsMonitor<GitHubOptions> _options;
+    private AuthenticatedUser? _cachedUser;
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -39,9 +40,25 @@ public sealed class GitHubBillingUsageProvider : IUsageDataProvider
         _options = options;
     }
 
-    public async Task<IReadOnlyList<SeatInfo>> GetSeatsAsync(string org, CancellationToken ct = default)
+    public async Task<IReadOnlyList<SeatInfo>> GetSeatsAsync(string? org, CancellationToken ct = default)
     {
         EnsureAuthorized();
+
+        if (string.IsNullOrWhiteSpace(org))
+        {
+            // No org access — fall back to the authenticated user's own
+            // personal Copilot subscription as the sole "seat".
+            var me = await GetAuthenticatedUserAsync(ct);
+            return
+            [
+                new SeatInfo(
+                    me.Login,
+                    me.Name ?? me.Login,
+                    DateOnly.FromDateTime(me.CreatedAt.UtcDateTime),
+                    me.CreatedAt,
+                    "personal account")
+            ];
+        }
 
         var seats = new List<SeatInfo>();
         var page = 1;
@@ -78,11 +95,22 @@ public sealed class GitHubBillingUsageProvider : IUsageDataProvider
         return seats;
     }
 
-    public async Task<IReadOnlyList<UsageRecord>> GetUsageRecordsAsync(string org, DateOnly from, DateOnly to, CancellationToken ct = default)
+    public async Task<IReadOnlyList<UsageRecord>> GetUsageRecordsAsync(string? org, DateOnly from, DateOnly to, CancellationToken ct = default)
     {
         EnsureAuthorized();
 
-        using var request = CreateRequest(HttpMethod.Get, $"organizations/{org}/settings/billing/usage");
+        string usageUrl;
+        if (string.IsNullOrWhiteSpace(org))
+        {
+            var me = await GetAuthenticatedUserAsync(ct);
+            usageUrl = $"users/{me.Login}/settings/billing/usage";
+        }
+        else
+        {
+            usageUrl = $"organizations/{org}/settings/billing/usage";
+        }
+
+        using var request = CreateRequest(HttpMethod.Get, usageUrl);
         using var response = await _http.SendAsync(request, ct);
         await EnsureSuccessAsync(response, ct);
 
@@ -112,6 +140,24 @@ public sealed class GitHubBillingUsageProvider : IUsageDataProvider
                 x.Item.DiscountAmount,
                 x.Item.NetAmount))
             .ToArray();
+    }
+
+    private async Task<AuthenticatedUser> GetAuthenticatedUserAsync(CancellationToken ct)
+    {
+        if (_cachedUser is { } cached)
+        {
+            return cached;
+        }
+
+        using var request = CreateRequest(HttpMethod.Get, "user");
+        using var response = await _http.SendAsync(request, ct);
+        await EnsureSuccessAsync(response, ct);
+
+        var user = await response.Content.ReadFromJsonAsync<AuthenticatedUser>(JsonOptions, ct)
+            ?? throw new UsageProviderException("GitHub API returned an empty response for the authenticated user.");
+
+        _cachedUser = user;
+        return user;
     }
 
     private void EnsureAuthorized()
@@ -154,6 +200,11 @@ public sealed class GitHubBillingUsageProvider : IUsageDataProvider
         [property: JsonPropertyName("assignee")] Assignee? Assignee);
 
     private sealed record Assignee([property: JsonPropertyName("login")] string Login);
+
+    private sealed record AuthenticatedUser(
+        [property: JsonPropertyName("login")] string Login,
+        [property: JsonPropertyName("name")] string? Name,
+        [property: JsonPropertyName("created_at")] DateTimeOffset CreatedAt);
 
     private sealed record BillingUsageResponse(
         [property: JsonPropertyName("usageItems")] List<UsageItem> UsageItems);

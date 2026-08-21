@@ -20,7 +20,7 @@ public sealed class MockUsageDataProvider : IUsageDataProvider
         _timeProvider = timeProvider;
     }
 
-    public async Task<IReadOnlyList<SeatInfo>> GetSeatsAsync(string org, CancellationToken ct = default)
+    public async Task<IReadOnlyList<SeatInfo>> GetSeatsAsync(string? org, CancellationToken ct = default)
     {
         var roster = await LoadRosterAsync(ct);
         var today = DateOnly.FromDateTime(_timeProvider.GetUtcNow().UtcDateTime);
@@ -35,7 +35,7 @@ public sealed class MockUsageDataProvider : IUsageDataProvider
             .ToArray();
     }
 
-    public async Task<IReadOnlyList<UsageRecord>> GetUsageRecordsAsync(string org, DateOnly from, DateOnly to, CancellationToken ct = default)
+    public async Task<IReadOnlyList<UsageRecord>> GetUsageRecordsAsync(string? org, DateOnly from, DateOnly to, CancellationToken ct = default)
     {
         var roster = await LoadRosterAsync(ct);
         var records = new List<UsageRecord>();

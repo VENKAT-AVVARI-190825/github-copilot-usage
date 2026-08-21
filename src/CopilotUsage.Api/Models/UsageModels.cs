@@ -26,7 +26,6 @@ public sealed record MemberUsageSummary(
     string DisplayName,
     decimal RequestsUsed,
     decimal NetSpend,
-    double PersonHoursSaved,
     double? CapacityRemainingPct,
     DateTimeOffset LastActivityAt,
     string LastActivityEditor);

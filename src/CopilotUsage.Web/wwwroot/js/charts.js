@@ -41,28 +41,6 @@
         }
     };
 
-    // Draws each horizontal bar's value at its tip, in text ink (never the
-    // bar's own hue) — see marks-and-anatomy.md ("Bars → value at the tip").
-    function tipLabelPlugin(formatValue) {
-        return {
-            id: 'copilotTipLabels',
-            afterDatasetsDraw: function (chart) {
-                var meta = chart.getDatasetMeta(0);
-                var data = chart.data.datasets[0].data;
-                var ctx = chart.ctx;
-                ctx.save();
-                ctx.fillStyle = cssVar('--text-secondary');
-                ctx.font = '12px system-ui, -apple-system, "Segoe UI", sans-serif';
-                ctx.textBaseline = 'middle';
-                ctx.textAlign = 'left';
-                meta.data.forEach(function (bar, i) {
-                    ctx.fillText(formatValue(data[i]), bar.x + 6, bar.y);
-                });
-                ctx.restore();
-            }
-        };
-    }
-
     function renderTrendLine(canvasId, dataScriptId, colorVar, seriesLabel, opts) {
         opts = opts || {};
         var payload = readJsonData(dataScriptId);
@@ -136,59 +114,7 @@
         });
     }
 
-    function renderMemberBar(canvasId, dataScriptId) {
-        var payload = readJsonData(dataScriptId);
-        var canvas = document.getElementById(canvasId);
-        if (!payload || !canvas) {
-            return null;
-        }
-
-        var color = cssVar('--series-1');
-
-        return new Chart(canvas.getContext('2d'), {
-            type: 'bar',
-            data: {
-                labels: payload.labels,
-                datasets: [{
-                    data: payload.values,
-                    backgroundColor: color,
-                    borderRadius: 4,
-                    borderSkipped: false,
-                    maxBarThickness: 24
-                }]
-            },
-            options: {
-                indexAxis: 'y',
-                layout: { padding: { right: 48 } },
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        callbacks: {
-                            label: function (ctx) {
-                                return new Intl.NumberFormat().format(ctx.parsed.x) + ' requests';
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    x: {
-                        beginAtZero: true,
-                        grid: { color: cssVar('--gridline') },
-                        border: { display: false },
-                        ticks: { color: cssVar('--text-muted') }
-                    },
-                    y: {
-                        grid: { display: false },
-                        ticks: { color: cssVar('--text-primary') }
-                    }
-                }
-            },
-            plugins: [tipLabelPlugin(function (v) { return new Intl.NumberFormat().format(v); })]
-        });
-    }
-
     global.CopilotCharts = {
-        renderTrendLine: renderTrendLine,
-        renderMemberBar: renderMemberBar
+        renderTrendLine: renderTrendLine
     };
 })(window);

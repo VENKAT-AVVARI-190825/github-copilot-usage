@@ -1,4 +1,3 @@
-using System.Text.Json;
 using CopilotUsage.Web.Models;
 using CopilotUsage.Web.Services;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -11,20 +10,12 @@ public sealed class TeamMembersModel(ApiClient api) : PageModel
 
     public string? ErrorMessage { get; private set; }
 
-    public string MembersChartJson { get; private set; } = "null";
-
     public async Task OnGetAsync(CancellationToken ct)
     {
         try
         {
             var summary = await api.GetSummaryAsync(ct: ct);
             Members = summary.Members;
-
-            MembersChartJson = JsonSerializer.Serialize(new
-            {
-                labels = Members.Select(m => m.DisplayName),
-                values = Members.Select(m => m.RequestsUsed)
-            });
         }
         catch (ApiException ex)
         {

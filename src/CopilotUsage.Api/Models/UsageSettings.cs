@@ -16,6 +16,4 @@ public sealed class UsageSettings
     public string? GitHubOrg { get; set; }
 
     public decimal MonthlyBudgetPerSeat { get; set; } = 300m;
-
-    public double MinutesSavedPerRequest { get; set; } = 5.0;
 }

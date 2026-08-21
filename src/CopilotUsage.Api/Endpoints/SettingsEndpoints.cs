@@ -15,11 +15,11 @@ public static class SettingsEndpoints
 
         group.MapPut("/", async (UsageSettings settings, ISettingsStore store, CancellationToken ct) =>
         {
-            if (settings.MonthlyBudgetPerSeat < 0 || settings.MinutesSavedPerRequest < 0)
+            if (settings.MonthlyBudgetPerSeat < 0)
             {
                 return Results.ValidationProblem(new Dictionary<string, string[]>
                 {
-                    ["MonthlyBudgetPerSeat/MinutesSavedPerRequest"] = ["Values must be zero or greater."]
+                    ["MonthlyBudgetPerSeat"] = ["Value must be zero or greater."]
                 });
             }
 

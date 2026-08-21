@@ -6,11 +6,6 @@ public sealed class UsageAggregationService(IUsageDataProviderFactory providerFa
 {
     public async Task<OrgUsageSummary> GetOrgSummaryAsync(UsageSettings settings, DateOnly from, DateOnly to, CancellationToken ct = default)
     {
-        if (string.IsNullOrWhiteSpace(settings.GitHubOrg))
-        {
-            throw new UsageProviderException("No GitHub org is configured. Set it on the Settings page first.");
-        }
-
         var provider = providerFactory.GetProvider(settings.DataSource);
 
         var seats = await provider.GetSeatsAsync(settings.GitHubOrg, ct);
@@ -27,7 +22,6 @@ public sealed class UsageAggregationService(IUsageDataProviderFactory providerFa
                     ? totals
                     : (0m, 0m);
 
-                var personHours = (double)requests * settings.MinutesSavedPerRequest / 60.0;
                 double? capacityRemainingPct = settings.MonthlyBudgetPerSeat > 0
                     ? Math.Clamp(1.0 - (double)requests / (double)settings.MonthlyBudgetPerSeat, 0.0, 1.0) * 100.0
                     : null;
@@ -37,7 +31,6 @@ public sealed class UsageAggregationService(IUsageDataProviderFactory providerFa
                     seat.DisplayName,
                     requests,
                     netSpend,
-                    personHours,
                     capacityRemainingPct,
                     seat.LastActivityAt,
                     seat.LastActivityEditor);

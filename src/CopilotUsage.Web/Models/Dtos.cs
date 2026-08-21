@@ -13,7 +13,6 @@ public sealed record MemberUsageSummaryDto(
     string DisplayName,
     decimal RequestsUsed,
     decimal NetSpend,
-    double PersonHoursSaved,
     double? CapacityRemainingPct,
     DateTimeOffset LastActivityAt,
     string LastActivityEditor);
@@ -39,5 +38,4 @@ public sealed class UsageSettingsDto
     public UsageDataSourceDto DataSource { get; set; } = UsageDataSourceDto.Mock;
     public string? GitHubOrg { get; set; }
     public decimal MonthlyBudgetPerSeat { get; set; } = 300m;
-    public double MinutesSavedPerRequest { get; set; } = 5.0;
 }

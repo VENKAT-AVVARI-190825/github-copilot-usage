@@ -13,22 +13,6 @@ public class UsageAggregationServiceTests
         IReadOnlyList<UsageRecord> records) =>
         new(new StubProviderFactory(new StubProvider(seats, records)));
 
-    [Fact]
-    public async Task GetOrgSummaryAsync_ComputesPersonHoursFromRequestsAndMinutesSetting()
-    {
-        var seats = new[] { Seat("dev1") };
-        var records = new[] { Record("dev1", From, quantity: 120m) };
-        var service = CreateService(seats, records);
-
-        var summary = await service.GetOrgSummaryAsync(
-            new UsageSettings { GitHubOrg = "acme", MinutesSavedPerRequest = 5, MonthlyBudgetPerSeat = 300 },
-            From, To);
-
-        var member = Assert.Single(summary.Members);
-        Assert.Equal(120m, member.RequestsUsed);
-        Assert.Equal(10.0, member.PersonHoursSaved, precision: 3); // 120 * 5 / 60
-    }
-
     [Theory]
     [InlineData(0, 300, 100.0)]     // no usage -> full capacity remaining
     [InlineData(150, 300, 50.0)]    // half budget used
@@ -73,7 +57,6 @@ public class UsageAggregationServiceTests
         Assert.Equal(2, summary.Members.Count);
         var dev2 = summary.Members.Single(m => m.Login == "dev2");
         Assert.Equal(0m, dev2.RequestsUsed);
-        Assert.Equal(0.0, dev2.PersonHoursSaved);
     }
 
     [Fact]
@@ -96,12 +79,19 @@ public class UsageAggregationServiceTests
     }
 
     [Fact]
-    public async Task GetOrgSummaryAsync_MissingOrg_ThrowsUsageProviderException()
+    public async Task GetOrgSummaryAsync_NoOrgConfigured_StillSucceeds()
     {
-        var service = CreateService([], []);
+        // No org set (e.g. a personal-account GitHubLive fallback, or Mock
+        // which ignores org entirely) — aggregation itself has no org
+        // requirement; only the live provider cares, and only for its own
+        // seats/usage calls.
+        var seats = new[] { Seat("dev1") };
+        var records = new[] { Record("dev1", From, 10m) };
+        var service = CreateService(seats, records);
 
-        await Assert.ThrowsAsync<UsageProviderException>(() =>
-            service.GetOrgSummaryAsync(new UsageSettings { GitHubOrg = null }, From, To));
+        var summary = await service.GetOrgSummaryAsync(new UsageSettings { GitHubOrg = null }, From, To);
+
+        Assert.Equal(10m, Assert.Single(summary.Members).RequestsUsed);
     }
 
     private static SeatInfo Seat(string login) =>
@@ -112,10 +102,10 @@ public class UsageAggregationServiceTests
 
     private sealed class StubProvider(IReadOnlyList<SeatInfo> seats, IReadOnlyList<UsageRecord> records) : IUsageDataProvider
     {
-        public Task<IReadOnlyList<SeatInfo>> GetSeatsAsync(string org, CancellationToken ct = default) =>
+        public Task<IReadOnlyList<SeatInfo>> GetSeatsAsync(string? org, CancellationToken ct = default) =>
             Task.FromResult(seats);
 
-        public Task<IReadOnlyList<UsageRecord>> GetUsageRecordsAsync(string org, DateOnly from, DateOnly to, CancellationToken ct = default) =>
+        public Task<IReadOnlyList<UsageRecord>> GetUsageRecordsAsync(string? org, DateOnly from, DateOnly to, CancellationToken ct = default) =>
             Task.FromResult(records);
     }
 
